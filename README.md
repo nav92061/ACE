@@ -1,36 +1,27 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ACE
 
-## Getting Started
+Subject landing at `/`. Calculus app at **`/calc`**.
 
-First, run the development server:
+## Quick start
 
 ```bash
+npm install
+cp .env.local.example .env.local   # add Firebase web config
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `/` for subjects, `/calc` for AP Calculus timed practice.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Auth
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Username + password only (no Google).
+- Firebase Auth Email/Password stores credentials (email is `username@ace.local` under the hood).
+- Firestore `users/{uid}` stores username + role.
 
-## Learn More
+Enable **Email/Password** in Firebase Authentication (not Google).
 
-To learn more about Next.js, take a look at the following resources:
+## Unit skills (Calc · through Test 3)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Derivatives in context → Related rates → Linear approx → MVT → Critical points → Inc/Dec → First derivative test → Candidates test → Second derivative test → Graph extrema → Connecting f/f′/f″ → Optimization.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Timed sets only (no mastery unlock). Leaderboard when joined to a class.
