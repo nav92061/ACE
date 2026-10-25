@@ -6,8 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
-    "test:checker": "npx tsx scripts/smoke-checker.ts"
+    "lint": "eslint"
   },
   "dependencies": {
     "@opentelemetry/api": "^1.9.1",
