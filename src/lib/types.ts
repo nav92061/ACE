@@ -33,7 +33,8 @@ export interface Choice {
 
 export interface Problem {
   id: string;
-  unit: Unit;
+  /** A Calc AB unit for bank problems, or the notes set title for generated ones. */
+  unit: Unit | (string & {});
   topic: string;
   prompt: { kind: "text" | "math"; value: string }[];
   type: AnswerType;
@@ -48,6 +49,8 @@ export interface Problem {
   /** Teacher estimate until enough players have tried it. 0–1. */
   solveRate: number;
   graph?: GraphSpec;
+  /** Generated from study notes: prompt and choices are plain text with $inline math$. */
+  rich?: boolean;
 }
 
 export interface AnswerRecord {
@@ -56,9 +59,13 @@ export interface AnswerRecord {
   seconds: number;
   altitude: number;
   raw: string;
+  /** Accuracy plus speed points. Missing on flights saved before points existed. */
+  points?: number;
+  /** This was a retry of a question missed on an earlier launch. */
+  retry?: boolean;
 }
 
-export type FlightMode = "daily" | "unlimited" | "practice";
+export type FlightMode = "daily" | "unlimited" | "practice" | "notes";
 
 export interface FlightRecord {
   date: string;

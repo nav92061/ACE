@@ -4,8 +4,11 @@ import { useEffect, useRef, useState } from "react";
 import type { AnswerRecord, Problem } from "@/lib/types";
 import { ProblemGraph } from "./Graphs";
 import { MathField } from "./MathField";
-import { MathView, PromptView } from "./MathView";
+import { MathView, PromptView, RichText } from "./MathView";
 import { squareFor } from "@/lib/score";
+import { playTone } from "@/lib/sound";
+import { zoneFor } from "@/lib/zones";
+import { useCountUp } from "./useCountUp";
 
 export function ProblemPane({
   problem,
@@ -14,6 +17,9 @@ export function ProblemPane({
   altitude,
   answers,
   scored,
+  soundOn,
+  points,
+  retry = false,
   onSubmit,
 }: {
   problem: Problem;
@@ -22,6 +28,9 @@ export function ProblemPane({
   altitude: number;
   answers: AnswerRecord[];
   scored: boolean;
+  soundOn: boolean;
+  points: number;
+  retry?: boolean;
   onSubmit: (raw: string, seconds: number) => void;
 }) {
   const [left, setLeft] = useState(60);
@@ -98,6 +107,17 @@ export function ProblemPane({
   }, [problem]);
 
   const secs = Math.ceil(left);
+  const shownKm = useCountUp(altitude);
+  const shownPts = useCountUp(points);
+  let combo = 0;
+  for (let i = answers.length - 1; i >= 0 && answers[i]!.correct; i -= 1) combo += 1;
+  const urgent = secs <= 10;
+  const soundRef = useRef(soundOn);
+  soundRef.current = soundOn;
+
+  useEffect(() => {
+    if (secs <= 5 && secs > 0) playTone("warn", soundRef.current);
+  }, [secs]);
   const dash = 2 * Math.PI * 18;
   const offset = dash * (1 - left / 60);
 
@@ -106,8 +126,15 @@ export function ProblemPane({
       <header className="hud">
         <div className="hud-stat">
           <span className="hud-label">Altitude</span>
-          <strong>{altitude} km</strong>
+          <strong>
+            {shownKm} <small>km</small>
+          </strong>
+          <span className="hud-zone">{zoneFor(altitude).name}</span>
         </div>
+        <div className="hud-mid">
+          <span className="hud-label">
+            Prompt {index + 1} of {total}
+          </span>
         <ol className="squares" aria-label="Problems">
           {Array.from({ length: total }, (_, i) => {
             const ans = answers[i];
@@ -115,21 +142,29 @@ export function ProblemPane({
             return <li key={i} className={`sq ${cls}`} />;
           })}
         </ol>
+        </div>
         <div className="hud-stat hud-right">
           <span className="hud-label">Score</span>
-          <strong>{altitude}</strong>
+          <strong>{shownPts}</strong>
+          {combo >= 2 ? <span className="combo">x{combo} combo</span> : null}
         </div>
       </header>
 
       <div className="stage">
-        <article className="pixel-frame card">
+        <article key={problem.id} className={`pixel-frame card pop${retry ? " retry" : ""}`}>
+          {retry ? (
+            <p className="retry-toast" role="status">
+              <span aria-hidden>↻</span> Retry opportunity
+              <small>You missed this one last time</small>
+            </p>
+          ) : null}
           <div className="pixel-inner">
             <p className="kicker">
               Problem {index + 1} of {total}
-              {scored ? null : " · practice"}
+              {scored || problem.rich ? null : " · practice"}
             </p>
             <p className="unit-name">{problem.unit}</p>
-            <PromptView parts={problem.prompt} />
+            <PromptView parts={problem.prompt} rich={problem.rich} />
             {problem.graph ? <ProblemGraph spec={problem.graph} /> : null}
             <p className="rarity">harder answers fly higher</p>
           </div>
@@ -138,8 +173,8 @@ export function ProblemPane({
 
       <div className="dock">
         {problem.type === "mc" ? (
-          <div className="choices" role="radiogroup" aria-label="Choices">
-            {problem.choices?.map((c) => (
+          <div className={`choices${problem.rich ? " rich" : ""}`} role="radiogroup" aria-label="Choices">
+            {problem.choices?.map((c, i) => (
               <button
                 key={c.id}
                 type="button"
@@ -151,14 +186,15 @@ export function ProblemPane({
                   setChoice(c.id);
                 }}
               >
-                <MathView latex={c.latex} />
+                <span className="choice-key">{i + 1}</span>
+                {problem.rich ? <RichText text={c.latex} /> : <MathView latex={c.latex} />}
               </button>
             ))}
           </div>
         ) : null}
         <div className="dock-row">
           <div
-            className="timer"
+            className={`timer${urgent ? " urgent" : secs <= 20 ? " warn" : ""}`}
             role="timer"
             aria-label={`${secs} seconds left`}
           >

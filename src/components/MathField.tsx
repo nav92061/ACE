@@ -81,7 +81,7 @@ export function MathField({
     "smart-superscript": "off",
     "smart-mode": "off",
     "popover-policy": "off",
-    placeholder: "Type your answer",
+    placeholder: "\\text{Type your answer}",
     readOnly: disabled ? true : undefined,
   });
 }

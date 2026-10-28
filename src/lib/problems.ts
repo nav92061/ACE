@@ -1,4 +1,5 @@
 import { setNumberFor } from "./daily";
+import { RUN_LENGTH } from "./limits";
 import type { Difficulty, GraphSpec, Problem, Unit } from "./types";
 
 export const BASE_KM: Record<Difficulty, number> = {
@@ -544,7 +545,7 @@ function pickFrom(pool: Problem[], index: number, used: Set<string>): Problem | 
   return undefined;
 }
 
-/** Same six problems for every student on this UTC date. Always includes an integral. */
+/** Same ten problems for every student on this UTC date. Always includes an integral. */
 export function problemsForDate(d = new Date()): Problem[] {
   const n = setNumberFor(d);
   const used = new Set<string>();
@@ -555,7 +556,7 @@ export function problemsForDate(d = new Date()): Problem[] {
   used.add(first.id);
   const picked: Problem[] = [first];
   const spinning = UNITS.filter((unit) => unit !== first.unit);
-  for (let i = 0; i < 5; i += 1) {
+  for (let i = 0; i < RUN_LENGTH - 1; i += 1) {
     const unit = spinning[(n + i) % spinning.length]!;
     const pool = PROBLEMS.filter((p) => p.unit === unit);
     const next = pickFrom(pool, n + i * 2, used) ?? pickFrom(PROBLEMS, n + i, used);
@@ -573,7 +574,7 @@ export function unlimitedProblems(d = new Date()): Problem[] {
   const n = setNumberFor(d);
   const used = new Set<string>();
   const picked: Problem[] = [];
-  for (let i = 0; i < 8; i += 1) {
+  for (let i = 0; i < RUN_LENGTH; i += 1) {
     const next = pickFrom(rest, n + i * 3, used);
     if (!next) break;
     used.add(next.id);
