@@ -771,7 +771,7 @@ export function DailyApp() {
                   <div className="fuel" aria-hidden>
                     <span />
                   </div>
-                  <p className="explain">Questions are written from your notes. This can take up to a minute.</p>
+                  <p className="explain">Questions are written from your notes. The first batch can take a minute or two.</p>
                 </>
               )}
             </div>
