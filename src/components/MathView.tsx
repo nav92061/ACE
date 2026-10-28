@@ -30,13 +30,17 @@ export function MathView({
 
 export function PromptView({
   parts,
+  rich = false,
 }: {
   parts: { kind: "text" | "math"; value: string }[];
+  rich?: boolean;
 }) {
   return (
     <div className="prompt">
       {parts.map((part, i) =>
-        part.kind === "math" ? (
+        rich ? (
+          <RichText key={i} text={part.value} block />
+        ) : part.kind === "math" ? (
           <div key={i} className="prompt-math">
             <MathView latex={part.value} display />
           </div>
@@ -47,5 +51,22 @@ export function PromptView({
         ),
       )}
     </div>
+  );
+}
+
+/** Plain text with $inline math$, used for questions generated from notes. */
+export function RichText({ text, block = false }: { text: string; block?: boolean }) {
+  const parts = text.split(/(\$[^$]+\$)/g).filter(Boolean);
+  const Tag = block ? "p" : "span";
+  return (
+    <Tag className={block ? "rich-text prompt-text" : "rich-text"}>
+      {parts.map((part, i) =>
+        part.startsWith("$") && part.endsWith("$") && part.length > 2 ? (
+          <MathView key={i} latex={part.slice(1, -1)} />
+        ) : (
+          <span key={i}>{part}</span>
+        ),
+      )}
+    </Tag>
   );
 }
